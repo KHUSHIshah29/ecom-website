@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard</title>
+    <link rel="stylesheet" href="css/signup.css">
+    <link rel="stylesheet" href="css/seller.css">
+</head>
+<body>
+    <img src="img/loader.gif" class="loader" alt="">
+    <div class="alert-box ">
+        <img src="img/error.png" class="alert-img" alt="">
+        <p class="alert-msg">Error message</p>
+    </div>
+    <img src="img/dark-logo.png" class = "logo" alt="">
+
+    <div class="become-seller hide">
+        <p class="heading">become a seller</p>
+        <p class="des">You sell it, we ship it. Aestethic has one of the most advanced fulfilment networks in the world. With Fulfilment by Aestethic (FBA), you store your products in Aestethic's fulfilment centres, and we pick, pack, ship, and provide customer service for these products. FBA can help you scale your business and reach more customers.Depending on the nature of your business, you will be required to register for a VAT number in a European country as per the regulations. Some of the factors that influence your VAT obligations are the fulfilment model and the country of inventory storage.
+        </p>
+        <button class="btn" id="apply-btn"> apply for seller account </button>
+
+    </div>
+
+    <div class="apply-form">
+        <input type="text" id="business-name" placeholder="business name / company name / shop name">
+        <textarea id="business-add" placeholder="address"></textarea>
+        <textarea id="about" placeholder="about"></textarea>
+        <input type="text" id="number" placeholder="number">
+        <br>
+        <input type="checkbox" checked class="checkbox" id="terms-and-cond">
+            <label for="terms-and-cond">agree to our <a href="">terms and conditions</a> </label>
+            <br>
+    
+
+        <input type="checkbox"  checked class="checkbox" id="legitInfo">
+        <label for="legitInfo">all information is legit</a> 
+        </label>
+        <button class="submit-btn" id="apply-form-btn" > apply </button>
+        
+    </div>
+
+
+
+
+
+    <script src="js/token.js"></script>
+    <script src="js/seller.js"></script>
+
+    
+</body>
+</html>
