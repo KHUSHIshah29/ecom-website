@@ -1,4 +1,4 @@
-let char = `123abcde.fmnopqLABCDE@FJKLMNOPQRSTUVWXYZ456789stuvwxyz0!#$&ijkrgh'*+-/=?^_${'`'}{|}~`;
+let char = `123abcde.fmnopqlABCDE@FJKLMNOPQRSTUVWXYZ456789stuvwxyz0!#$%&ijkrgh'*+-/=?^_${'`'}{|}~`;
 
 const generateToken = (key) => {
     let token = '';
@@ -13,7 +13,7 @@ const generateToken = (key) => {
 
 const compareToken = (token, key) => {
     let string = '';
-    for(let i = 0; i < token.length; i=1+2){
+    for(let i = 0; i < token.length; i=i+2){
         let index1 = char.indexOf(token[i]);
         let index2 = char.indexOf(token[i+1]);
         string += char[index1 + index2];
