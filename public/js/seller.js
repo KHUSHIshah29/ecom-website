@@ -1,6 +1,7 @@
 let loader = document.querySelector('.loader');
 
 const becomeSellerElement = document.querySelector('.become-seller');
+const productListingElement = document.querySelector('.product-listing');
 const applyForm = document.querySelector('.apply-form');
 const showApplyFormBtn = document.querySelector('#apply-btn');
 
@@ -8,8 +9,15 @@ window.onload = () =>{
     if(sessionStorage.user){
         let user = JSON.parse(sessionStorage.user);
         if(compareToken(user.authToken, user.email)){
-            becomeSellerElement.classList.remove('hide');
-        }
+            if(!user.seller){
+                becomeSellerElement.classList.remove('hide');
+
+            }else{
+                productListingElement.classList.remove('hide');
+            }
+            
+
+          }
     }else{
         location.replace('/login');
     }
@@ -33,6 +41,18 @@ applyFormButton.addEventListener('click', () =>{
         showAlert('you must agree to our terms and conditions');
     }else{
         //making server request
+        loader.style.display = 'block';
+        sendData('/seller', {
+            name: businessName.value,
+            address: address.value,
+            about: about.value,
+            number: number.value,
+            tac: tac.checked,
+            legit: legitInfo.checked,
+            email: JSON.parse(sessionStorage.user).email
+
+
+        })
     }
 })
 

@@ -13,6 +13,44 @@ admin.initializeApp({
 });
 let db = admin.firestore();
 
+//aws config
+const aws = require('aws-sdk');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+//aws parameters
+const region ="eu-west-2";
+const bucketName = "ecom-website-khushi";
+const accessKeyId = process.env.AWS_ACCESS_KEY;
+const secretAccessKey = process.env.AWS_SECRET_KEY;
+
+aws.config.update({
+    region,
+    accessKeyId,
+    secretAccessKey
+})
+//init s3
+const s3 = new aws.S3();
+
+//generate image upload link
+async function generateUrl(){
+    let date = new Date();
+    let id = parseInt(Math.random() *10000000000);
+    
+    const imageName = `${id}${date.getTime()}.jpg`;
+
+    const params = ({
+        Bucket: bucketName,
+        Key: imageName,
+        Expires:300, //300 ms
+        ContentType:'image/jpeg'
+    })
+    const uploadUrl = await s3.getSignedUrlPromise('putObject', params);
+    return uploadUrl;
+
+}
+
 let staticPath = path.join(__dirname, "public");
 
 const app = express();
@@ -119,7 +157,34 @@ app.get('/seller',(req,res) =>{
     res.sendFile(path.join(staticPath,"seller.html"));
 })
 
+app.post('/seller', (req, res) => {
+    let { name , about, address, number, tac, legit, email} = req.body;
+    if(!name.length || !address.length || !about.length || number.length <10 || !Number(number)){
+        return res.json({'alert': 'some information(s) is/are invalid'});
+    }else if(!tac || !legit){
+        return res.json({'alert':'you must agree to the terms and conditions'})
+    } else {
+        //update users seller status here
+        db.collection('sellers').doc(email).set(req.body)
+        .then( data => {
+            db.collection('users').doc(email).update({
+                seller:true
+            }).then(data => {
+                res.json(true);
+            })
+        })
+    }
+})
 
+//add product
+app.get('/add-product', (req, res) =>{
+    res.sendFile(path.join(staticPath, "addProduct.html"));
+})
+
+// get the upload link
+app.get('/s3url', (req, res) => {
+    generateUrl().then(url => res.json(url));
+})
 
 //404 route
 
