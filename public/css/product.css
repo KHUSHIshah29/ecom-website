@@ -8,7 +8,6 @@
     width:500px;
     height: 500px;
     position:relative;
-    background-image: url('../img/product\ image\ 1.png');
     background-size: cover;
 }
 .product-images{
@@ -124,4 +123,7 @@
 .des{
     color:#383838;
     line-height: 25px;
+    white-space: pre-wrap ;
+    margin-bottom: 50px;
+    
 }

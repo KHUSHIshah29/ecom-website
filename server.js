@@ -2,6 +2,7 @@ const express = require('express');
 const admin = require('firebase-admin');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 //firebase admin setup
 
@@ -182,33 +183,52 @@ app.get('/add-product', (req, res) =>{
 })
 
 //add product
+app.get('/add-product/:id', (req, res) =>{
+    res.sendFile(path.join(staticPath, "addProduct.html"));
+})
+
+
+// get the upload link
+app.get('/s3url', (req, res) => {
+    generateUrl().then(url => res.json(url));
+})
+
+//add product
 app.post('/add-product', (req, res) =>{
-    let {name, shortDes, des, images, sizes, actualPrice, discount, sellPrice, stock, tags, tac, email } = req.body;
+    let {name, shortDes, des, images, sizes, actualPrice, discount, sellPrice, stock, tags, tac, email, draft, id} = req.body;
+    
+    
 
     //validation
-    if(!name.length){
-        return res.json({'alert':'enter product name'})
-    }else if (shortDes.length >100 || shortDes.length <10){
-        return res.json({'alert':'short description must be between 10 to 100 letters long'});
-    }else if(!des.length){
-        return res.json({'alert':'enter detail description about the product'});
-    }else if(!images.length){ // image link array
-        return res.json({'alert':'upload atleast one product image'});
-
-    }else if(!sizes.length){ //size array
-        return res.json({'alert':'select atleast one size'});
-    }else if(!actualPrice.length || !discount.length || !sellPrice.length){
-        return res.json({'alert':'you must add pricings'});
-    }else if(stock <20){
-        return res.json({'alert':'you should atleast have 20 items in stock'});
-    }else if(!tags.length){
-        return res.json({'alert':'enter few tags to help ranking your product in search'});
-    }else if(!tac){
-        return res.json({'alert':'you must agree to our terms and conditions'});
+    if(!draft){
+        if(!name.length){
+            return res.json({'alert':'enter product name'})
+        }else if (shortDes.length >100 || shortDes.length <10){
+            return res.json({'alert':'short description must be between 10 to 100 letters long'});
+        }else if(!des.length){
+            return res.json({'alert':'enter detail description about the product'});
+        }else if(!images.length){ // image link array
+            return res.json({'alert':'upload atleast one product image'});
+    
+        }else if(!sizes.length){ //size array
+            return res.json({'alert':'select atleast one size'});
+        }else if(!actualPrice.length || !discount.length || !sellPrice.length){
+            return res.json({'alert':'you must add pricings'});
+        }else if(stock <20){
+            return res.json({'alert':'you should atleast have 20 items in stock'});
+        }else if(!tags.length){
+            return res.json({'alert':'enter few tags to help ranking your product in search'});
+        }else if(!tac){
+            return res.json({'alert':'you must agree to our terms and conditions'});
+        }
+    
     }
+    
+
+
 
     //add product
-    let docName = `${name.toLowerCase()}-${Math.floor(Math.random() * 5000)}`;
+    let docName = id== undefined ? `${name.toLowerCase()}-${Math.floor(Math.random() * 5000)}`: id;
     db.collection('products').doc(docName).set(req.body)
     .then(data =>{
         res.json({'product': name});
@@ -218,15 +238,23 @@ app.post('/add-product', (req, res) =>{
     })
 })
 
-// get the upload link
-app.get('/s3url', (req, res) => {
-    generateUrl().then(url => res.json(url));
-})
+
 
 //get products
 app.post('/get-products', (req,res) => {
-    let { email } = req.body;
-    let docRef = db.collection('products').where('email', '==', email);
+    let { email, id, tag } = req.body;
+    
+
+    if(id){
+        docRef = db.collection('products').doc(id)
+
+    }else if(tag){
+      docRef = db.collection('products').where('tags', 'array-contains', tag)
+
+    }else{
+        docRef = db.collection('products').where('email', '==', email)
+
+    }
 
     docRef.get()
     .then(products => {
@@ -234,12 +262,16 @@ app.post('/get-products', (req,res) => {
             return res.json('no products');
         }
         let productArr = [];
-        products.forEach(item =>{
-            let data = item.data();
-            data.id = item.id;
-            productArr.push(data);
-        })
-        res.json(productArr)
+        if(id){
+            return res.json(products.data());
+        } else{
+            products.forEach(item =>{
+                let data = item.data();
+                data.id = item.id;
+                productArr.push(data);
+            })
+            res.json(productArr)
+        }
     })
 })
 
@@ -252,6 +284,39 @@ app.post('/delete-product', (req, res) =>{
         res.json('err');
     })
 })
+
+//product page
+app.get('/products/:id', (req, res) => {
+    res.sendFile(path.join(staticPath, "product.html"));
+
+
+})
+
+app.get('/search/:key', (req, res) => {
+    res.sendFile(path.join(staticPath, "search.html"));
+})
+app.get('/cart', (req, res) => {
+    res.sendFile(path.join(staticPath, "cart.html"));
+
+})
+
+app.get('/checkout', (req, res) => {
+    res.sendFile(path.join(staticPath, "checkout.html"));
+
+
+})
+
+app.post('/order', (req, res) => {
+    const{order, email, add} = req.body;
+    let docName = email + parseInt(100000000);
+
+    db.collection('order').doc(docName).set(req.body)
+    .then(data =>{
+        res.json('done');
+    })
+})
+
+
 
 //404 route
 
