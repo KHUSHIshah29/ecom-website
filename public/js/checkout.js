@@ -19,7 +19,13 @@ placeOrderBtn.addEventListener('click', () => {
             })
         }).then( res=> res.json())
         .then(data => {
-            alert(data);
+            
+            if(data.alert == 'your order is placed'){
+                delete localStorage.cart;
+                showAlert(data.alert, 'success');
+            }else{
+                showAlert(data.alert);
+            }
         })
     }
  })
